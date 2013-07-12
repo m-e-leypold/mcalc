@@ -1,0 +1,337 @@
+						-*- mode: outline -*-
+
+
+           Mcalc Benutzerdokumentation
+	   ___________________________
+
+
+*   Übersicht
+    =========
+
+    Mcalc ist ein Rechenprogramm ("Taschenrechner"), der in Worten
+    ausgedrückte Zahlen, die (wie 'zweihundertausendvierundsechzig')
+    interpretieren kann. Mcalc besitzt einen Batchmodus, in dem
+    Ausdrücke aus einer Datei gelesen werden und die Ergebnisse in
+    eine andere Datei geschrieben werden, sowie einen interaktiven
+    Modus, in dem der Benutzer (genau) eine Zeile eingeben kann,
+    welche dann evaluiert wird.
+
+    Mcalc unterstützt Zahlwörter bis "million(en)", Klammern und die
+    Operatoren '+', '-', '-', '/' als sowohl als Zeichen als auch als
+    Worte.
+
+
+*   Walkthrough / Demonstration
+    ===========================
+
+**  Interaktiver Modus
+    ------------------
+
+*** Aufruf
+
+    Um in den interaktiven Modus zu gelangen muss mcalc ohne Parameter
+    aufgerufen werden. Eine Beispielsitzung:
+
+        $.../mcacl$ ./mcalc 
+
+	MCalc Version 0.0.1, Copyright (C) 2005 Markus E Leypold
+	MCalc comes with ABSOLUTELY NO WARRANTY; for details see LICENSE.
+	This is free software, and you are welcome to redistribute it
+	under certain conditions; see LICENSE for details.
+
+	zweihundertzehn minus siebenundvierzig
+	=> 163
+ 
+        $_
+
+
+    Mcalc gibt dann erst Programmtitel und Lizenz aus, dann kann der
+    Benutzer einen Ausdruck eingeben. Dieser wird evaluiert und nach
+    einem Pfeil "=>" ausgegeben. Danach beendet sich 'mcalc'.
+
+
+*** Ausdrücke
+
+    Im Folgenden eine kurze Demonstration der wichtigsten
+    Möglichkeiten:
+
+        ...
+	( zwei plus 19 ) geteilt durch sieben 
+	 => 3
+   
+    "Verbale" Formulierungen und mathematische Notation können
+    gemischt werden. Die Operationen können durch die folgenden Wörter
+    zum Ausdruck gebracht werden:
+
+         +  ->  plus
+	 -  ->  minus
+	 *  ->  mal
+	 /  ->  geteilt durch
+
+
+    Die Bestandteile von Zahlwörtern können, müssen aber nicht durch
+    Leerzeichen voneinander getrennt werden:
+
+         ...
+	 vierzehn millionen zweihundertzehntausendvierhundertvierunddreissig
+          => 14210434
+
+    ist äquivalent zu
+
+         ...
+	 vierzehn millionen zweihundertzehn tausend vierhundertvierunddreissig
+          => 14210434
+
+    Es ist jedoch nicht gestattet, Leerzeichen in die einzelnen
+    Grundwörter, wie 'millionen', 'hundert', 'fünf', 'vierzehn'
+    einzufügen. Der Rechner erkennt den Wortbestandteil dann nicht und
+    quittiert mit einer Fehlermeldung:
+
+         einhun dert
+	  => ERROR: line 1: characters 3-3: Hier wurde 'und' erwartet.
+
+    Mcalc kennt die üblichen Operatorpräzedenzen (Punkt vor Strich):
+
+          ...
+          11 + achtundzwanzig geteilt durch 4 minus 5
+	   => 13
+
+
+*** Fehlermeldungen im interaktiven Modus
+    
+    Kann ein Ausdruck nicht ausgewertet werden, weil er nicht
+    "wohlgeformt" ist, dann gibt Mcalc drei ( :-) Fehlermeldungen aus:
+    Eine Anstelle des Ergebnisses, eine "schön" formatierte welche die
+    betreffende Eingabezeile wiedergibt und in der das anstößige
+    Textstück unterstrichen ist, sowie schließlich beim Beenden eine
+    Warnung, dass bei der Bearbeitung der Eingabe ein Fehler
+    aufgetreten ist (diese Meldung ist für den Batchmodus wichtig,
+    wird aber im interaktiven Modus auch ausgegeben). 
+
+    Beispiel:
+
+         ...  
+	 fünfzehn minus mal 33 => ERROR: line 1: characters 15-17: Zahl \
+                                                      oder '(' erwartet.
+
+ 	   Zeile 1    - fünfzehn minus mal 33
+	                               ---
+				       | Zahl oder '(' erwartet.
+
+         Warning: STDIN: Errors occured during evaluation.
+
+    
+    Beim auftreten eines Fehlers im eingegebenen Ausdruck springt
+    Mcacl bis zum Ende der Zeile, ehe mit der Auswertung fortgefahren
+    wird. Weiter Fehler oder Teilausdrücke in eine fehlerhaften Zeile
+    bleiben also ohne Konsequenzen:
+
+         ...
+	 23 + oops und noch mehr schotter (4 + 8)
+	  => ERROR: line 1: characters 5-5: Zahl oder '(' erwartet.
+
+           Zeile 1    - 23 + oops und noch mehr schotter (4 + 8)
+                             -
+                             | Zahl oder '(' erwartet.
+
+         Warning: STDIN: Errors occured during evaluation.
+
+    In der Regel versuchen die Fehlermeldungen zum Ausdruck zu
+    bringen, welches Wort / welcher Operator (Parser-Speak: Token) als
+    nächstes erwartet worden wäre. In der vorliegenden Version des
+    Parsers (des Teils von Mcalc, der die Ausdrücke analysiert und
+    interpretiert) ist sind die resultierenden Fehlermeldung manchmal
+    erstaunlich klarsichtig
+
+
+          Zeile 1    - 18 +  ( 110 * * 18 )
+                                     -
+                                    | Zahl oder '(' erwartet.
+
+    und manchmal überaus irreführend.
+
+
+          Zeile 1    - einhundertundsieben
+                                 ---
+                                | expected end of line here.
+
+    (Zur Beschränkung des Gebrauchs "hundertund..." siehe näheres im
+    Kapitel "Beschränkungen").
+
+
+**  Batch-Modus / Nichtinteraktiver Modus
+    -------------------------------------
+
+*** Aufruf des Batchmodus
+
+    Der Batchmodus wird in mcalc durch Angabe eine Eingabedatei auf
+    der Kommandozeile angegeben:
+
+         $ ./mcalc x
+
+	 MCalc Version 0.0.1, Copyright (C) 2005 Markus E Leypold
+	 MCalc comes with ABSOLUTELY NO WARRANTY; for details see LICENSE.
+	 This is free software, and you are welcome to redistribute it
+	 under certain conditions; see LICENSE for details.
+
+         ...
+
+    Wieder wird das Programm-Banner auf die Standardausgabe ausgegeben
+    (wird dies nicht gewünscht, muss die Standardausgabe mit Mitteln
+    der Shell umgeleitet werden).
+
+    Im Batchmodus wird die Eingabe (in mehreren Zeilen) von der
+    angegebenen Datei <datei> gelesene und die Ergebnisse werden in
+    die Datei <datei>.out geschrieben. 
+
+    Ein Ergebnis kann hierbei (a) ein Zahl, (b) ein Fehler oder (c)
+    eine Leerzeile sein (genau dann, wenn die Eingabe wiederum ein
+    Leerzeile ist). Beispielsweise:
+
+	 $ cat x                      # unsere Eingabedatei
+
+	 fünfzehn minus mal 33
+	 vier mal 15 geteilt durch 11 + achtundzwanzig plus eins
+
+	 ( 24 + 11 ) * 30 * (110 - siebenhundert)
+
+
+         $ cat x.out                  # die Ausgabedatei
+
+	 ERROR: line 1: characters 15-17: Zahl oder '(' erwartet.
+	 34
+
+	 -619500
+
+
+*** Fehlermeldungen im Batchmodus
+    
+    Treten Fehler auf, so wird (außer der 'ERROR'-Zeile in der
+    Ergebnisdatei) auch eine entsprechende Meldung mit markierter
+    Fehlerposition auf die Standardausgabe ausgegeben. Für die
+    angegebene Datei ist die resultierende vollständige Ausgabe also:
+
+         $ ./mcalc x
+
+	 MCalc Version 0.0.1, Copyright (C) 2005 Markus E Leypold
+	 MCalc comes with ABSOLUTELY NO WARRANTY; for details see LICENSE.
+	 This is free software, and you are welcome to redistribute it
+	 under certain conditions; see LICENSE for details.
+
+
+	   Zeile 1    - fünfzehn minus mal 33
+	                               ---
+                                       | Zahl oder '(' erwartet.
+
+         Warning: x: Errors occured during evaluation.
+
+         $_
+  
+    Werden diese Fehlerausgaben nicht gewünscht, so müssen sie
+    wiederum mit Shellmitteln umgeleitet werden.
+
+
+
+*   Fehlerbehandlung
+    ================
+
+    Fehlerhafte, nichtwohlgeformte Ausdrücke führen zur Ausgabe einer
+    entsprechenden Meldung anstelle eines Ergebnisses, danach fährt
+    das Programm (im Batchmodus) mit der Auswertung der nächsten Zeile
+    fort. 
+
+    Nach dem Auftreten von Fehlern in den Ausdrücken beendet sich das
+    Programm mit einem Exit-Code von 1.
+
+    Treten während der Programmausführung andere Fehler auf, wie das
+    Fehlen von Speicher, Ein- und Ausgabefehler, interne Fehler etc
+    (soweit diese überhaupt erkannt werden, siehe "Beschränkungen")),
+    dann bricht das Programm mit dem Systemaufruf abort() "hart" ab:
+    Auf Unices führt dies in der Regel zu einem Exit-Code > 128
+
+    Überflüssige Kommandozeilenargumente werden mit einer Warnung
+    ignoriert.
+
+
+
+*   Beschränkungen
+    ==============
+
+**  Editieren der Eingabe
+    ---------------------
+
+    Die Eingabe verwendet (implizit) den Cooked-Modus des
+    Terminal. Deshalb ist es zwar möglich, mit Backspace / ^H jeweils
+    das letzte Zeichen zu entfernen, extensives Editieren der
+    Eingabezeile (wie mit libreadline) aber ist nicht möglich.
+
+    Diese Beschränkung ist gewollt, da die Spezifikation (siehe
+    Rückfrage an Frau Bulau) die Verwendung weiterer Bibliotheken
+    ausschloß.
+
+
+**  Laufzeitfehler
+    --------------
+
+    Mcalc prüft und erkennt nicht alle Laufzeitfehler (insbesondere
+    werden zur Zeit keine Fehler beim schreiben auf die Ausgabedatei
+    oder auf die Standardausgabe abgefragt).
+
+    Einige Laufzeitfehler (wie das Fehlen von Speicher) können auf
+    einigen Systemen prinzipiell nicht erkannt werden (beispielsweise
+    auf Linux-Systemen mit Memory-Overcommit). Solche Fehler führen
+    evtl. zu einem Abbruch des Programms mit einer "Segmentation
+    Violation", diese ist aber nicht für einen Angriff nutzbar.
+    
+
+**  Sicherheit
+    ----------
+
+    Qualität des C-Codes ist _nicht_ gut genug für einen Einsatz in
+    einem sicherheitskritischen Bereich. (a) Möglicherweise sind
+    unerkannte Buffer-Overflows im Programm enthalten. (b)
+    Integer-Overflows können nicht ausgeschlossen werden (das ist
+    unter C sowieso sehr schwierig aus den Vorbedingungen zu
+    garantieren).
+
+
+**  Überläufe bei der Evaluation
+    ----------------------------
+
+    Bei der Auswertung der Ausdrücke können zwei Arten von
+    Überlauffehlern auftreten. Beide werden nicht entdeckt und führen
+    zu einem falschen Ergebnis, aber nicht zu einer Fehlermeldung.
+
+    (a) Beim Berechnen eines Ausdrucks:
+
+	10000 * 10000 * 10000 * 10000
+	 => 1874919424
+
+    (b) Bei der Umwandlung eines numerischen Literals in eine Zahl:
+
+	99999999999999999999999999999999
+	 => 2147483647
+
+    Im Prinzip ist dieses Problem behebbar, aber im vorliegenden
+    Prototyp eben noch nicht behoben.
+
+
+**  Syntaktische Beschränkungen
+    ---------------------------
+
+    Das Wort 'und' kann nicht nach 'hundert' eingesetzt werden, der
+    Ausdruck 'einhundertundeins' ist also unzulässig (richtig ist:
+    'einhunderteins'.
+
+
+**  Sprache der Fehlermeldungen
+    ---------------------------
+
+    Fehler des Parsers (also Fehler die aus schlecht geformten
+    Ausdrücken herrühren) sind in Deutsch gehalten, dagegen sind die
+    Meldungen zu Laufzeitfehlern und alle anderen Programmfehlern in
+    Englisch gehalten.
+
+
+
+--  2005-09-20, M E Leypold

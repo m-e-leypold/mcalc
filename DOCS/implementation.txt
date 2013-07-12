@@ -1,0 +1,87 @@
+
+
+       Mcalc -- Bemerkungen zur Implementation
+       _______________________________________
+
+
+
+*   Weitere Informationen
+    =====================
+
+    Für Bemerkungen zu Implementation siehe die Kommentare zu den
+    einzelnen Quelldateien. I.d.R enthält jedes Modul einen
+    ausführlichen einleitenden Kommentar.
+
+
+*   Module
+    ======
+
+    Es wurde versucht, Mcalc modular zu implementieren. Dies bedeutet:
+
+      1. Trennung von Interface und Implementation: Mit Ausnahme von
+         'mcalc' selbst besitzt jedes Modul <modul> eine
+         Interface-Datei <modul>.h und eine Implementationsdatei
+         <modul>.c
+
+      2. Namensraumkontrolle: Jedes Modul darf nur Namen einer
+         bestimmten Menge exportieren, um Namenskonflikte zu vermeiden
+         und die Zugehörigkeit des Konstrukts zu einem bestimmten
+         Modul zu kennzeichnen (Namespaces für arme Leute :-).
+
+      3. Abstraktion über Darstellung konkreter Datentypen / Zustände,
+         Funktionalisierung der Schnittstellen.
+
+        
+    Mit Ausnahme der Module 'str-utils', 'smalloc' und 'panic' folgen
+    alle Module zur Vermeidung von Namenskonflikten, dass alle
+    exportierten Namen eines Moduls <modul> mit der Zeichenkette
+    <modul>_ beginnen oder der Name des Moduls selber ist.
+
+    Beipiel: Modul 'lexer', Dateien 'lexer.h', 'lexer.c'. Exportiert
+    werden u.a. die folgenden Namen:
+
+      - lexer (der zentrale Datentyp der den Zustand des Lexers
+        enthält).
+
+      - lexer_token,
+
+      - LEXER_TOKEN_CLASS_EOF.
+
+    Von Prinzip (3) wurde abgewichen, wo es wirtschaftlich und
+    sinnvoll erschien (zB in 'symtable').
+
+
+*   Speichermanagement
+    ==================
+
+    Dynamisches Speichermanagement in ANSI C ist (insbesondere, wo es
+    um Strings geht) unsicher und potentiell uneffizient, wenn keine
+    speziellen Bibliotheken zur Verfügung stehen. 
+
+    Da diese im Rahmen der Aufgabe nicht entwickelt werden können und
+    externe Bibliotheken nicht angewendet werden durften, wurde nach
+    Möglichkeit darauf verzichtet Speicher dynamisch zu verwalten
+    (Ausnahme: Eingabepuffer, hier werden einige spezialisierte
+    Prozeduren eingesetzt).
+
+    Daraus ergeben sich einige heikle Wechselwirkungen: Beispielsweise
+    inkorporieren Tokens ihre Lexeme (den Text, aus dem sie erkannt
+    wurden nicht) sondern verweisen nur auf die Eingabe. Im Kontext
+    der input_source-Abstraktion kann deshalb das Lexeme nur
+    rekonstruiert / gedruckt werden, wenn die Produktion des Tokens
+    nicht zu weit zurückliegt (was in der Tat in der augenblicklichen
+    Praxis nie der Fall ist). Solche "semantischen Klammern" über
+    Kontext, der benötigt wird, um die Bedeutung eines Datums zu
+    bestimmen, führen langfristig zu schwer wartbarem Code (kein
+    Problem hier, das soll aber als Tradeoff erwähnt werden), da die
+    Tokens nie aus ihrem zeitlichen/semantischen Kontext propagiert
+    werden können/dürfen, bzw. der Kontext nicht zu stark verändert
+    werden darf.
+    
+    Im vorliegenden Fall wäre es wahrscheinlich ganz nützlich (siehe
+    Lexer, Input) gewesen, zuerst eine Abstraktion für dynamische
+    (wachsende) Puffer zu entwickeln.
+    
+
+--  2005-09-21, M E Leypold
+

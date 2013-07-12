@@ -1,0 +1,116 @@
+						-*- mode: outline -*-
+
+
+	  Mcalc Installationsanleitung
+	  ____________________________
+
+
+
+*   Übersetzung aus den Quellen
+    ===========================
+
+**  Voraussetzungen
+    ----------------
+
+    Die C-Quellen (*.c und *.h Dateien) sollten sich mit jedem
+    ANSI-C-Compiler übersetzen lassen (das ist auf
+    Nicht-Linux-Systemen ungetestet). Über die Standard-C-Bibliothek
+    hinaus werden keine weiteren Biblotheken verwendet.
+    
+    Zur Übersetzung von Mcalc auf Unix-Systemen benötigen sie eine
+    Bourne- oder Korn-kompatible Shell und einen C-Compiler _oder_
+    zusätzlich GNU Make, GCC und Awk.
+
+
+**  Konfiguration
+    -------------
+
+    Siehe Hinweise bei den einzelne Buildmethoden.
+
+
+**  Übersetzung ohne GNU Make
+    -------------------------
+
+    Gehen Sie in das Quellverzeichnis und führen Sie das Skript
+    BUILD.sh mit der Bourne- oder Kornshell aus:
+
+      $ cd $MCALC_SOURCE_DIR
+      $ sh BUILD.sh            # alternativ 'bash' oder 'ksh'
+
+    (Ausgabe:)
+
+      + cc -g -c -o mcalc.o mcalc.c
+      + cc -g -c -o input.o input.c
+      ...
+      + cc -o mcalc mcalc.o input.o lexer.o parser.o symtable.o \
+        panic.o smalloc.o str-utils.o
+      + cp mcalc taschenrechner
+
+
+    Die Übersetzung wird hierbei durch das Skript BUILD.sh gesteuert
+    das zum Zeitpunkt des Deployment der Quellen automatisch aus dem
+    Makefile und den Abhängigkeiten der Dateien untereinander erzeugt
+    wurde. 
+
+    Durch Setzen der Umgebungsvariablen CC, CFLAGS etc. können
+    Parameter und Flags für die Übersetzungsprogramme an ds Skript
+    übergeben werden (wichtig für Betriebsystem, bei denen cc kein
+    brauchbarer C-Compiler ist, zB HP-UX 9 usw.):
+
+      CC=gcc sh BUILD.sh   # Das ist legale Bourne-Shell-Syntax!
+
+    oder
+
+      export CC=gcc; sh BUILD.sh 
+
+
+    oder
+
+      setenv CC gcc; sh BUILD.sh   # auf der C-Shell oder TCSH
+
+    Die Konfigurationsvariablen entsprechen dem "Quasistandard" für
+    Makefiles, für eine exakte Liste siehe BUILD.sh oder die
+    Dokumentation der eingebauten Regeln von GNU Make.
+
+    Da eine erfolgreiche Übersetzung der Quellen abhängig ist von der
+    Reihenfolge der Übersetzung entsprechend den Abhängigkeiten,
+    eignet sich BUILD.sh nicht zur (Weiter-) Entwicklung des Programms
+    wenn sich die Abhängigkeiten zwischen den Dateien ändern. Zudem
+    werden alle Quellen bei jedem Lauf des BUILD.sh-Skriptes
+    übersetzt, egal, ob das nötig ist oder nicht.
+
+    Um das Programm (mit Ausnahme minderer Patches) weiterentwickeln
+    zu können, müssen Sie Gnu Make, GCC und Awk für den Buildprozess
+    einsetzen.
+    
+
+**  Übersetzung mit Gnu Make, GCC und Awk
+    -------------------------------------
+
+    Gehen Sie in das Quellverzeichnis und führen Sie 'make aus.
+
+       cd $MCALC_SOURCE_DIR
+       make
+
+    Das Programm wird übersetzt und einige Tests werden
+    ausgeführt. Mit GNU Make und GCC werden Abhängigkeiten zwischen
+    den einzelnen Modulen (Dateien *.d) automatisch regeneriert.
+
+    Vor der Übersetzung können am Kopf der Makedatei (oder als
+    Parameter für make selbst) die Parameter für Compiler und Linker
+    gesetzt werden. Die im Makefile zum Einsatz kommenden Variablen
+    sind identisch mit denen der eingebauten Regeln von Gnu Make.
+
+
+*   Installation
+    ============
+
+    Nach dem Übersetzen der Quellen befinden sich im Quellverzeichnis
+    die 2 identischen Executables "taschenrechner" und "mcalc". Beide
+    können manuell in den Shell-Pfad kopiert werden (es gibt kein
+    install-Target im makefile) oder an Ort- und Stelle ausgeführt
+    werden.
+
+
+--  2006-05-20, M E Leypold
+

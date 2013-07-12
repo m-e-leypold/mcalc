@@ -1,0 +1,44 @@
+                                                        -*- mode: outline -*-
+
+ Mcalc
+ -----
+
+ This is a calculator which can interpret numbers written in german
+ numerals (like 'zweihundertausendvierundsechzig').
+
+ It has been written in September 2005 as a coding sample for
+ some unnamed client.
+
+ All further documentation is in German.
+
+ ---
+
+ Mcalc ist ein Rechenprogramm ("taschenrechner"), das Zahlen, die
+ mittels Zahlwörtern geschrieben worden sind (wie
+ 'zweihundertausendvierundsechzig') interpretieren kann.
+
+ Er wurde im September 2005 als Code-Beispiel für einen Klienten
+ geschrieben, der hier ungenannt bleiben soll.
+
+ Nützliche Informationen finden Sie im Quelltextbaum an den folgenden
+ Stellen:
+
+   Hinweise zur Lizenz    -> LICENSE.txt
+   Installationsanleitung -> INSTALL
+   Benutzeranleitung      -> DOCS/user.txt
+
+   Bemerkungen zur 
+   Implementation         -> DOCS/implementation.txt
+
+   Beschreibungen der
+   einzelnen Module       -> Quelltext der jeweilige C- und Header-Dateien.
+ 
+ Für Bemerkungen zur Implementation siehe insbesondere die Kommentare
+ zu den einzelnen Quelldateien. I.d.R enthält jedes Modul einen
+ ausführlichen einleitenden Kommentar.
+
+
+ -- 2006-05-20, M E Leypold
+
+
+

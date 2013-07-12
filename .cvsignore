@@ -1,0 +1,11 @@
+mcalc
+taschenrechner
+*.out
+*.log
+.*
+*~
+?
+*.d
+a.out
+cscope.out
+BUILD.sh
