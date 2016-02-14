@@ -17,8 +17,7 @@
 #   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 #   02110-1301 USA.
 
+# TODO: interpret project metadata ( e.g. ignore_files, ignore_dirs, build ids )
 
-include Build-Everything-Now/ben.mk
-clean:
-	rm -rf *.o mcalc *~ */*~
-
+import framework
+class Project(framework.Project): pass

@@ -1,3 +1,4 @@
+#!/usr/bin/python
 #
 #   Mcalc -- evaluate numerical expressions given in natural language.
 #   Copyright (C) 2005-2016  M E Leypold.
@@ -18,7 +19,18 @@
 #   02110-1301 USA.
 
 
-include Build-Everything-Now/ben.mk
-clean:
-	rm -rf *.o mcalc *~ */*~
 
+import C
+
+from projects import Project
+
+class MCalc(Project):
+
+    """A calculator which can interpret numbers written in german numerals.
+    """
+
+    version      = (0,0,4,1)
+
+    ignore       = [ ".*[.]py" ] # this should create dummy-generators - XXX not implemented yet
+
+    

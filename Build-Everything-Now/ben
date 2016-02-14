@@ -1,3 +1,4 @@
+#!/bin/sh
 #
 #   Mcalc -- evaluate numerical expressions given in natural language.
 #   Copyright (C) 2005-2016  M E Leypold.
@@ -18,7 +19,8 @@
 #   02110-1301 USA.
 
 
-include Build-Everything-Now/ben.mk
-clean:
-	rm -rf *.o mcalc *~ */*~
+exec ./Project.ben
+
+
+
 

@@ -17,8 +17,16 @@
 #   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 #   02110-1301 USA.
 
+BEN-PATH := $(dir $(lastword $(MAKEFILE_LIST)))
+GOALS    := all
 
-include Build-Everything-Now/ben.mk
-clean:
-	rm -rf *.o mcalc *~ */*~
+export PYTHONPATH := $(BEN-PATH)$(PYTHONPATH:%=:%)
+export PATH       := $(BEN-PATH)$(PATH:%=:%)
+
+$(GOALS): %:
+	@export PYTHONPATH="$(PYTHONPATH)" ; $(BEN-PATH)/ben $@
+
+
+
+
 

@@ -25,8 +25,10 @@
 
 
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
 
 int
 panic_syserror(char* message, char* object_name) {
