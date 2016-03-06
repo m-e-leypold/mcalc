@@ -38,6 +38,7 @@
 
 
 #include <assert.h>
+#include <string.h>
 
 #include "panic.h"
 #include "smalloc.h"

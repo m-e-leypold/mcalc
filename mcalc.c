@@ -73,6 +73,7 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "panic.h"
 #include "str-utils.h" 

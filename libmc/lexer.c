@@ -25,6 +25,7 @@
 
 
 #include <assert.h>
+#include <string.h>
 
 #include "input.h"
 #include "lexer.h"

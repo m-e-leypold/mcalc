@@ -1,0 +1,6 @@
+
+- do most logging/banners only if not restarting!
+
+- include paths: $(PRODUCT)/..
+- push everything to L1
+- Convert to unicode (doc, source)

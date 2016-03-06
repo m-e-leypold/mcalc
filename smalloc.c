@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include "panic.h"
 #include "smalloc.h"
-
+#include <string.h>
 
 void*
 smalloc (size_t size ) {

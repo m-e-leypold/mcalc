@@ -1,6 +1,6 @@
 #
-#   Mcalc -- evaluate numerical expressions given in natural language.
-#   Copyright (C) 2005  M E Leypold.
+#   Mcalc/B.E.N - Generic Makefile for C
+#   Copyright (C) 2015,2016  M E Leypold.
 #
 #   This program is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU General Public License as
@@ -18,232 +18,247 @@
 #   02110-1301 USA.
 
 
-#  Makefile -- This is a GNU-Makefile for the Mcalc project.
-#
-#  The parametrisation/configuration section follows immediately.
-#
-#  The other sections of this file are generic rules for programs
-#  written in C and keeping to certain "modularity guidelines".
+default:: all
 
+debug:
+	echo ": $(BUILD-ID)"
 
+PRODUCT = mcalc
 
-#  PROJECT PARAMETRISATION / CONFIGURATION   -----------------
-#
-#
+# --------------------------------
 
-default      : taschenrechner mcalc tests
+$(shell echo >&2 -e "\n** Build-Everything-Now - Generic Makefile for C **\n")
 
-test         : mcalc
-	echo; echo; \
-	./mcalc test-input-3; ERR=$$?; echo; \
-	echo ---; cat test-input-3.out; echo --- ; echo; exit $$ERR
+LAST-BUILD-ID := $(shell if test -f .var/build-id; then cat .var/build-id; else : ; fi )
 
-
-PROJECT-NAME = mcalc
-
-C-PROGRAMS   = mcalc
-C-MODULES    = input lexer parser symtable \
-               panic smalloc str-utils
-
-TESTS        = test-input-numerals test-input-expressions
-
-mcalc: $(C-MODULES:%=%.o)
-
-CC         = gcc
-CPPFLAGS   =
-CFLAGS     = -g -Wall -DLDEBUG -ansi -pedantic
-LOADLIBES  = 
-LDLIBS     = 
-
-%.log: % mcalc
-	@echo Running Test: ./mcalc $< 
-	@./mcalc 1>"$@" 2>&1 $< || $(FAIL-TEST)
-
-CLEANABLES     = *.out *.log
-TEST-PROTOCOLS = $(TESTS:%=%.log) 
-
-
-taschenrechner: mcalc
-	$(COPY) 
-
-PRODUCTS += taschenrechner
-
-# UTILITIES
-#
-
-STAMP      := $(shell date -Is)
-FAIL        = { rm "$@" ; exit 1; }
-FAIL-TEST   = { mkdir -p FAILED-TESTS/ && mv "$@" FAILED-TESTS/"$@;$(STAMP)"; \
-                exit 0; }
-MDIR@       = mkdir -p $$(dirname "$@")
-COPY        = cp $< $@ || $(FAIL)
-
-
-# MODULAR C RULES   --------------------------------------------
-#
-#   ...
-
-C-COMPILE = $(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
-C-LINK    = $(CC) $(LDFLAGS) -o $@ $^ $(LOADLIBES) $(LDLIBS)
-C-MKDEPS  = $(CC) $(CPPFLAGS) $(CFLAGS) -MM $< | $(C-DEPS-FORMAT) >$@ 
-C-LIST    = enscript -r -2 -c -f Courier@7 \
-            -j --margins=:40:0:100 -Ec	   \
-            -o "$@" $< || $(FAIL)
-
-$(C-MODULES:%=%.o): %.o: %.c %.h
-	$(C-COMPILE)
-
-$(C-MODULES:%=%.d): %.d: %.c %.h
-	@echo Generating dependencies: $< ...
-	@$(C-MKDEPS) || $(FAIL)
-
-$(C-PROGRAMS:%=%.o): %.o: %.c
-	$(C-COMPILE)
-
-$(C-PROGRAMS:%=%.d): %.d: %.c
-	@echo Generating dependencies: $< ...
-	@$(C-MKDEPS) || $(FAIL)
-
-$(C-PROGRAMS): %: %.o
-	$(C-LINK)
-
-$(C-MODULES:%=%.h.ps) $(C-MODULES:%=%.c.ps) $(C-PROGRAMS:%=%.c.ps): %.ps: %
-	$(C-LIST)
-
-C-DEPS       =  $(C-MODULES:%=%.d) $(C-PROGRAMS:%=%.d)
-
-c-modules    :  $(C-MODULES:%=%.o)
-c-programs   :  $(C-PROGRAMS)
-c-deps       :  $(C-DEPS)
-
-
-PHONIES      += c-modules c-programs c-deps
-CLEANABLES   += *.o *.c.ps *.h.ps
-DEPS         += $(C-DEPS)
-
-PRODUCTS     += $(C-PROGRAMS)
-OBJECT-FILES += $(C-MODULES:%=%.o)
-
-LISTINGS     += $(C-PROGRAMS:%=%.c.ps) \
-                $(C-MODULES:%=%.c.ps) $(C-MODULES:%=%.h.ps)
-
-# ADMINISTRATIVE AND COLLECTIVE TARGETS   ------------------------
-#
-
-.PHONY: all tests tidy clean cleaner test $(PHONIES)
-
-all: $(PRODUCTS)
-
-tests: $(TEST-PROTOCOLS)
-	@if ls -1 FAILED-TESTS/*$(STAMP) >/dev/null 2>&1; then \
-	    echo                                       ;  \
-	    echo '*********************************'   ;  \
-	    echo '*                               *'   ;  \
-	    echo '***    SOME TESTS FAILED !    ***'   ;  \
-	    echo '*                               *'   ;  \
-	    echo '*********************************'   ;  \
-	    echo                                       ;  \
-	    cd FAILED-TESTS && ls -1 *$(STAMP)         ;  \
-	    echo                                       ;  \
-            fi
-
-listings: $(LISTINGS)
-
-tidy:
-	rm -f *~ $(CLEANABLES)
-	find . -name "?" -maxdepth 1 -type f | xargs rm -f
-	rm -f foobar*
-	rm -f ?.*
-
-clean: tidy
-	rm -f $(PRODUCTS)
-	rm -rf FAILED-TESTS/
-
-cleaner: clean
-	rm -f $(DEPS)
-
-
-CLEANER-PHONIES += cleaner
-
-
-# VERSION CONTROL HOOKS (for Leypold's Project Shell Bindings)
-#
-
-check-versions:
-	cvs -nq update
-
-commit-versions:
-	cvs commit
-
-
-
-# MECHANISM(S) TO AUTOMATE DEPENDENCY-GENERATION   ----------------
-#
-#
-
-C-DEPS-FORMAT = awk '      	\
-                                \
-   BEGIN{ BUF="" }    		\
-	              		\
-   {print $$0}        		\
-                                \
-   /^[a-zA-Z_]/{                \
-                                \
-      printf BUF;               \
-      BUF = BUF $$0 "\n";       \
-      sub(/\.o:/,".d: ",BUF);   \
-      next;                     \
-   }		                \
-                                \
-   {                            \
-      BUF = BUF $$0 "\n";       \
-      next;                     \
-   }		                \
-                                \
-   END{ printf BUF;}            \
-'
-
-
-ifneq ($(filter $(CLEANER-PHONIES),$(MAKECMDGOALS)),cleaner)
-      include $(DEPS)
+ifeq ($(LAST-BUILD-ID),)
+BUILD-ID := $(shell mkdir -p .var ; uuidgen > .var/build-id ; cat .var/build-id )
+else 
+BUILD-ID := $(LAST-BUILD-ID)-DIRTY
 endif
 
-     
+
+# --------------------------------
+
+DEFAULT-IGNORE-DIRS  = .git .var 
+DEFAULT-IGNORE-NAMES = .* *~ *.pyc *.o CVS __pycache__
+IGNORE-DIRS          = $(DEFAULT-IGNORE-DIRS)  $(EXTRA-IGNORE-DIRS)
+IGNORE-NAMES         = $(DEFAULT-IGNORE-NAMES) $(EXTRA-IGNORE-NAMES)
+DEFAULT-ACCEPT-NAMES = *.c *.h *.l *.y *.d
+ACCEPT-NAMES        ?= $(DEFAULT-ACCEPT-NAMES)
+FIND-DEPTH           = 3
+
+ifdef ACCEPT-NAMES
+-ACCEPT-NAMES = -a \( -false $(ACCEPT-NAMES:%= -o -name "%") \)
+endif
+
+FIND = find . $(FIND-DEPTH:%=-maxdepth %) \( -type d -a -not -path "." -a \( \( -false $(IGNORE-DIRS:%= -o -path "./%") $(IGNORE-NAMES:%= -o -name "%") \) -a -prune \) -a -false \) -o  -type f $(-ACCEPT-NAMES) -a
+
+ifndef SOURCES
+SOURCES := $(shell $(FIND) -type f -print)
+endif
+
+SOURCES     := $(patsubst ./%,%,$(SOURCES))
+SOURCE-DIRS := $(patsubst %/,%,$(sort $(dir $(SOURCES))))
+
+$(shell echo>&2 '=> SOURCE-DIRS: $(SOURCE-DIRS)')
+
+# --------------------------------
+
+COPY! = @mkdir -p $(@D) && cp $< $@
+
+clean:: ACCEPT-NAMES=
+clean:: 
+	@echo -e '=> Cleaning ...'
+	@rm -rf .var/*
+	@find . -name '*~' -print | xargs rm -f
+
+all::
+	@echo -e '=> Building ...'
+
+# --------------------------------
+
+C-HEADERS      = $(filter %.h,$(SOURCES))
+C-SOURCES      = $(filter %.c,$(SOURCES))
+
+C-MODULES      = $(filter $(C-HEADERS:%.h=%),$(C-SOURCES:%.c=%))
+C-PROGRAMS     = $(filter-out $(C-MODULES),$(C-SOURCES:%.c=%))
+
+.var/C-OBJECTS = $(C-MODULES:%=.var/src/%.o)
+.var/C-DEPS    = $(C-MODULES:%=.var/src/%.mk) $(C-PROGRAMSS:%=.var/src/%.mk)
+
+$(shell echo>&2 "=> C-SOURCES  : $(C-SOURCES)")
+$(shell echo>&2 "=> C-PROGRAMS : $(C-PROGRAMS)")
+$(shell echo>&2 "=> C-MODULES  : $(C-MODULES)")
 
 
-BUILD.sh: Makefile $(DEPS)
-	$(MAKE) clean
-	{                                                              \
-	  echo "#    ";                                                \
-	  echo "# Automatically generated build script for 'mcalc'.";  \
-	  echo "# For use on systems w/o GNU Make";                    \
-	  echo "#";                                                    \
-	  echo "";                      		\
-	  echo "";                      		\
-	  echo "set -x" ;               		\
-	  $(MAKE) -s -n                                 \
-             CC='$$$${CC:-cc}'                          \
-             CFLAGS='$$$${CFLAGS:-"-g"}'                \
-             LDFLAGS='$$$${LDFLAGS:-}'                  \
-             CPPFLAGS='$$$${CPPFLAGS:-}'                \
-             LDLIBS='$$$${LDLIBS:-}'                    \
-             LOADLIBES='$$$${LOADLIBES:-}'              \
-	     all ; \
-	} > $@ || $(FAIL) 
-	chmod 755 $@
+# --------------------------------
 
-CLEANABLES += BUILD.sh
+STAGED-HEADERS := $(C-HEADERS:%=.var/include/$(PRODUCT)/%) # XXX plus staging from generated headers
+
+$(C-HEADERS:%=.var/include/$(PRODUCT)/%): .var/include/$(PRODUCT)/%: %
+	$(COPY!)
+
+headers: $(STAGED-HEADERS)
 
 
-# GENERATING RELEASE BRANCHES
-#
-#
+# --------------------------------
 
-release-new:
-	LABEL=$$(echo $(STAMP) | date -Is | sed 's|:|-|g;s|+.*||'); \
-        LABEL=S-$(PROJECT-NAME)+$$LABEL; \
-	$(MAKE) cleaner && \
-	cvs tag -b -F $$LABEL && cvs update -r $$LABEL  && \
-	$(MAKE) -s BUILD.sh && \
-	cvs add $(DEPS) BUILD.sh && cvs commit -m '';
-	@echo; echo Snapshot date: $(SPAMP); echo
+deps  : $(.var/C-DEPS)
+-include $(.var/C-DEPS)
+
+# .var/src/%.mk: .var/src/%.d
+#	@awk <$< >$@ '(NR=1){gsub("$*.o:$$","$*.DEPS=",$$1)}{print}'
+
+# ^ XXX put that into the translation step => avoid restarting
+
+# --------------------------------
+
+# XXX support different includepath models: FUZZY, strictly local, local path, public paths
+
+# check this syntax => XXX s.th. wrong
+
+
+INCLUDE-FROM        ?= $(FUZZY-INCLUDE-PATHS)
+FUZZY-INCLUDE-PATHS := . $(SOURCE-DIRS:%=/$(PRODUCT)/%)
+INCLUDE-PATHS        = $(INCLUDE-FROM:%/.=/%)
+
+CPPFLAGS-I = $(patsubst %,-I %,$(INCLUDE-PATHS:/%=.var/include/%))
+
+%.o: %.c
+%: %.c
+%: %.o
+
+$(.var/C-OBJECTS): .var/src/%.o: .var/src/%.c
+	@mkdir -p $(@D)
+	@echo "=> CC $(<:.var/src/%=%)  -o $(@:.var/src/%=%)"
+	@$(CC) -MMD -c $(CPPFLAGS-I) $(CPPFLAGS) $(CFLAGS) -o $@ -MF $(@:%.o=%.d) $<
+	@awk <$(@:%.o=%.d) >$(@:%.o=%.mk) '(NR=1){gsub(".*/$*.o:$$","$*.DEPS =",$$1)}{print}'
+
+$(.var/C-OBJECTS:%.o=%.i): .var/src/%.i: .var/src/%.c 
+	@mkdir -p $(@D)
+	@echo "=> CC -E $(<:.var/src/%=%)  -o $(@:.var/src/%=%)"
+	@$(CC) -E -c $(CPPFLAGS-I) $(CPPFLAGS) $(CFLAGS) -o $@ $<
+
+define per-module-rules
+ifndef $1.DEPS
+$1.DEPS := $$(STAGED-HEADERS)
+endif
+.var/src/$1.o:  $$($1.DEPS)
+.var/src/$1.i:  $$($1.DEPS)
+endef
+
+$(foreach MODULE,$(C-MODULES),$(eval $(call per-module-rules,$(MODULE))))
+
+STAGED-SOURCES := $(C-SOURCES:%=.var/src/%) # XXX plus staging from generated source
+
+$(STAGED-SOURCES): .var/src/%.c: %.c
+	$(COPY!)
+
+
+# XXX need to fix the include-paths => different models?
+
+sources::     headers 
+modules::     $(.var/C-OBJECTS)
+preprocess::  $(.var/C-OBJECTS:%.o=%.i)
+
+
+# --------------------------------
+
+LIBS          = $(filter lib%,$(notdir $(SOURCE-DIRS)))
+LIBS-OBJPOOL := $(.var/C-OBJECTS)
+
+define per-lib-rules
+ifndef $(1)_OBJS
+$(1)_PATHS := $$(patsubst ./%,%,$$(filter %/$(1),$$(SOURCE-DIRS:%=./%)))
+$(1)_OBJS  := $$(filter $$($(1)_PATHS:%=.var/src/%/%),$$(LIBS-OBJPOOL))
+endif
+.var/lib/$1.a: $$($(1)_OBJS)
+LIBS-OBJPOOL := $$(filter-out $$($(1)_OBJS),$(LIBS-OBJPOOL))
+endef
+
+$(foreach LIB,$(LIBS),$(eval $(call per-lib-rules,$(LIB))))
+libLOCAL_OBJS := $(LIBS-OBJPOOL)
+LIBS += libLOCAL
+$(eval $(call per-lib-rules,libLOCAL))
+
+.var/LIBS = $(LIBS:%=.var/lib/%.a)
+all:: $(.var/LIBS)
+
+$(.var/LIBS): %.a:
+	@mkdir -p "$(@D)"
+	@echo "=> AR cr $(@:.var/lib/%=%)  $(^:.var/src/%=%)"
+	@ar cr "$@" $^
+
+libs:: $(.var/LIBS)
+
+# --------------------------------
+
+.var/PROGRAMS = $(C-PROGRAMS:%=.var/bin/%)
+
+$(.var/PROGRAMS): .var/bin/%: .var/src/%.c
+	@mkdir -p $(@D)
+	@echo "=> CC $(<:.var/src/%=%) $(filter %.o,$(^:.var/src/%=%)) $(filter %.a,$(^:.var/lib/%=%)) -o $(@:.var/bin/%=%)"
+	@$(CC) -MMD $(CPPFLAGS-I) $(CPPFLAGS) $(CFLAGS) -o $@ -MF $(<:%.c=%.d) $< $(filter %.o,$^) $(filter %.a,$^)
+	@awk <$(<:%.c=%.d) >$(<:%.c=%.mk) '(NR=1){gsub(".*/$*:$$","$*.DEPS =",$$1)}{print}'
+
+define per-program-rules
+ifndef $(1).DEPS
+$(1).DEPS := $$(STAGED-HEADERS)
+endif
+ifndef $(1).LIBS
+$(1).LIBS := $$(.var/LIBS)
+endif
+.var/bin/$1: $$($(1).DEPS) $$($(1).LIBS)
+endef
+
+$(foreach PROGRAM,$(C-PROGRAMS),$(eval $(call per-program-rules,$(PROGRAM))))
+
+programs:: $(.var/PROGRAMS)
+all::      $(.var/PROGRAMS)
+
+# --------------------------------
+
+IGNORE-SOURCES-FOR-INSTALL = *.d
+
+install::
+	@echo -e "=> Installing ..."
+	@rm -rf .var/STAGE
+	@mkdir -p .var/STAGE
+	@echo "=> CP lib/"
+	@cp -r .var/lib .var/STAGE/lib
+	@echo "=> CP bin/"
+	@cp -r .var/bin .var/STAGE/bin
+	@echo "=> CP include/"
+	@cp -r .var/include .var/STAGE/include
+	@echo "=> FIND src/"
+	@mkdir -p .var/STAGE/src
+	@set -e -u; cd .var/src ; $(FIND) -not -name '*.d' -print | xargs tar -cf- | tar -C ../STAGE/src -xf-
+	@echo "=> CHMOD"
+	@chmod -R g-w,o-w,ugo+X .var/STAGE
+	@echo "=> BUILD-ID: $(BUILD-ID)"
+	@echo "$(BUILD-ID) $(PRODUCT)" >.var/STAGE/BUILD-ID
+
+package::
+	@echo -e "=> Packaging ..."
+	@echo "=> TAR -f $(PRODUCT)_$(BUILD-ID).tar.gz"
+	@mkdir -p .var/dist
+	@tar -C .var/STAGE -czf .var/dist/$(PRODUCT)_$(BUILD-ID).tar.gz .
+
+# --------------------------------
+
+all::
+	@echo -e "=> OK.\n"
+
+install::
+	@echo -e "=> OK.\n"
+
+
+clean::
+	@echo -e "=> OK.\n"
+
+package::
+	@echo -e "=> OK.\n"
+
+
+$(shell echo >&2)
