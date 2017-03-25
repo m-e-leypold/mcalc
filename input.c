@@ -378,8 +378,8 @@ input_fprint_line(FILE* f, input_source* s, int line){   /* s. input.h */
   if ((s->buf_fill==0 && line == s->current_line)) { 
     return fprintf(f,"EOF\n"); };
 
-  if ( line == s->current_line ) r = fprintf(f, s->buf);
-  else                           r = fprintf(f, s->old_buf);
+  if ( line == s->current_line ) r = fprintf(f, "%s", s->buf);
+  else                           r = fprintf(f, "%s", s->old_buf);
 
 
   return r;

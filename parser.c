@@ -285,7 +285,7 @@ parse_range_2_9(){             /* ==> Alle Zahlwörter von 'zwei' bis 'neun' */
 
   number n;
   
-  if (!(TOK_IS(O_ONE))){
+  if (!TOK_IS(O_ONE)){
     throw_error_current_lexeme("Zahlwort von zwei (oder eins) bis neun erwartet."); }
 
   n=tok.val; next_token(); return n;
@@ -401,7 +401,7 @@ parse_range_2_999999(){       /* ==> Alle Zahlwörter von 'zwei' bis "999999" */
 
   if (TOK_IS(tausend))  { n=tok.val; next_token(); return n + parse_opt_1_999() ; }
 
-  if ((TOK_IS(ein))) { 
+  if (TOK_IS(ein)) { 
     
     n = tok.val; next_token();
     
@@ -446,7 +446,7 @@ parse_range_1_999999999(){    /* ==> Alle Zahlwörter von 'eins' bis "999999999" 
 
   if (TOK_IS(eins))     { return parse_range_1_9();   }
 
-  if ((TOK_IS(eine))) { 
+  if (TOK_IS(eine)) { 
     next_token(); n = tok.val; MATCH(million,"Zahlwort 'Million' erwartet");
     return n + parse_opt_1_999999();
   }
@@ -614,7 +614,7 @@ parse_line(parser* p){         /* parse genau eine Zeile, erzeuge
     /* Fehler ist aufgetreten: Fehlermeldungen in Ausgabedatei und
        Standardfehlerkanal schreiben, Recovery */
 
-    fprintf(out,"ERROR: line %d: characters %d-%d: %s.\n", 
+    fprintf(out,"ERROR: line %d: characters %ld-%ld: %s.\n", 
 	    error_line, error_lexeme_start, error_lexeme_end, errortext);
     fprint_error(err);
     recover();
