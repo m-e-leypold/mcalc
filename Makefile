@@ -151,7 +151,7 @@ listings: $(LISTINGS)
 
 tidy:
 	rm -f *~ $(CLEANABLES)
-	find . -name "?" -maxdepth 1 -type f | xargs rm -f
+	find . -maxdepth 1 -name "?" -type f | xargs rm -f
 	rm -f foobar*
 	rm -f ?.*
 	rm -f *.d
