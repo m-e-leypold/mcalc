@@ -20,11 +20,11 @@
 
 /*  symtable.c -- Mcalc 'symtable' implementation.
 
-    Die Reihenfolge der Eintr‰ge ist kritisch: Ist das Lexeme eines
-    Eintrags a das Pr‰fix des Lexems eines Eintrags b, so muss b vor a
+    Die Reihenfolge der Eintr√§ge ist kritisch: Ist das Lexeme eines
+    Eintrags a das Pr√§fix des Lexems eines Eintrags b, so muss b vor a
     in die Symboltafel eingertragen werden (der Lexer erkennt den
     _ersten_ passenden Eintrag, nicht, wie es bei Erkennung mit
-    regul‰ren Ausdr¸cken der Fall ist, den l‰ngste. S. Bemerkungen in
+    regul√§ren Ausdr√ºcken der Fall ist, den l√§ngste. S. Bemerkungen in
     lexer.h zu diesem Thema).
 */
 
@@ -36,10 +36,10 @@ symtable_entry symtable [] =
   { 
     {"zehn",       LEXER_TOKEN_CLASS_O_TEN,     10  }, 
     {"zwanzig",    LEXER_TOKEN_CLASS_O_TEN,     20  }, 
-    {"dreiﬂig",    LEXER_TOKEN_CLASS_O_TEN,     30  }, 
+    {"drei√üig",    LEXER_TOKEN_CLASS_O_TEN,     30  }, 
     {"dreissig",   LEXER_TOKEN_CLASS_O_TEN,     30  }, 
     {"vierzig",    LEXER_TOKEN_CLASS_O_TEN,     40  }, 
-    {"f¸nfzig",    LEXER_TOKEN_CLASS_O_TEN,     50  }, 
+    {"f√ºnfzig",    LEXER_TOKEN_CLASS_O_TEN,     50  }, 
     {"sechzig",    LEXER_TOKEN_CLASS_O_TEN,     60  }, 
     {"siebzig",    LEXER_TOKEN_CLASS_O_TEN,     70 }, 
     {"achtzig",    LEXER_TOKEN_CLASS_O_TEN,     80  }, 
@@ -53,10 +53,10 @@ symtable_entry symtable [] =
 
 
     {"elf",        LEXER_TOKEN_CLASS_ELEVEN_UP, 11  }, 
-    {"zwˆlf",      LEXER_TOKEN_CLASS_ELEVEN_UP, 12  }, 
+    {"zw√∂lf",      LEXER_TOKEN_CLASS_ELEVEN_UP, 12  }, 
     {"dreizehn",   LEXER_TOKEN_CLASS_ELEVEN_UP, 13  }, 
     {"vierzehn",   LEXER_TOKEN_CLASS_ELEVEN_UP, 14  }, 
-    {"f¸nfzehn",   LEXER_TOKEN_CLASS_ELEVEN_UP, 15  }, 
+    {"f√ºnfzehn",   LEXER_TOKEN_CLASS_ELEVEN_UP, 15  }, 
     {"sechzehn",   LEXER_TOKEN_CLASS_ELEVEN_UP, 16  }, 
     {"siebzehn",   LEXER_TOKEN_CLASS_ELEVEN_UP, 17  }, 
     {"achtzehn",   LEXER_TOKEN_CLASS_ELEVEN_UP, 18  }, 
@@ -69,7 +69,7 @@ symtable_entry symtable [] =
     {"zwei",       LEXER_TOKEN_CLASS_O_ONE,     2   },
     {"drei",       LEXER_TOKEN_CLASS_O_ONE,     3   },
     {"vier",       LEXER_TOKEN_CLASS_O_ONE,     4   },
-    {"f¸nf",       LEXER_TOKEN_CLASS_O_ONE,     5   },
+    {"f√ºnf",       LEXER_TOKEN_CLASS_O_ONE,     5   },
     {"sechs",      LEXER_TOKEN_CLASS_O_ONE,     6   },
     {"sieben",     LEXER_TOKEN_CLASS_O_ONE,     7   },
     {"acht",       LEXER_TOKEN_CLASS_O_ONE,     8   },

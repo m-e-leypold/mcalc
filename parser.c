@@ -20,22 +20,22 @@
 /*  parser.c -- Mcalc Parser.
 
     Aufgabe des Parsers ist es , aus dem Token-Strom einen Parsetree
-    f¸r die Eingabe zu konstruieren, diesen abzulaufen, dabei den Wert
+    f√ºr die Eingabe zu konstruieren, diesen abzulaufen, dabei den Wert
     des Ausdrucks als 'synthetisiertes Attribut' (siehe Aho, Sethi,
     Ullmann: Compilers) zu evaluieren und Aktionen im Backend
-    auszulˆsen.
+    auszul√∂sen.
 
     Im vorliegenden Fall ist das Attribut vom Typ 'number', das
     Backend dagegen die Ausgabedatei und der Standardfehlerkanal.
 
     BEMERKUNGEN ZUR IMPLEMENTATION:
 
-      Mittel der Wahl f¸r 'manuell' implementierte Parser ist in der
+      Mittel der Wahl f√ºr 'manuell' implementierte Parser ist in der
       Regel ein rekursiv absteigender Parser (vorzugsweise mit einem
       Look-Ahead von 1), bei dem jede Grammatikregel durch eine
-      Prozedur implementiert wird, deren R¸ckgabewert(e) die Attribute
+      Prozedur implementiert wird, deren R√ºckgabewert(e) die Attribute
       des jeweiligen Knoten sind. Der Baum wird in diesem Fall nie
-      tats‰chlich aufgebaut, sondern durch den Graphen tats‰chlicher
+      tats√§chlich aufgebaut, sondern durch den Graphen tats√§chlicher
       Funktionsaufrufe nachgebildet.
     
       Rekursiv absteigende Parser parsen die LL-Grammatiken,
@@ -43,37 +43,37 @@
       Look-Ahead 1).
 
       Im vorliegenden Fall stellt sich leider heraus, dass die
-      Untergrammatik f¸r die zusammengesetzten Zahlwˆrter sich nur
-      sehr schwer auf eine LL(1) Form bringen l‰sst (die Methoden
-      w‰ren Elimination von Linksrekursion und Linksfaktorisierung)
-      ohne wirklich jede Vers‰ndlichkeit einzub¸ssen und in Unzahl von
+      Untergrammatik f√ºr die zusammengesetzten Zahlw√∂rter sich nur
+      sehr schwer auf eine LL(1) Form bringen l√§sst (die Methoden
+      w√§ren Elimination von Linksrekursion und Linksfaktorisierung)
+      ohne wirklich jede Vers√§ndlichkeit einzub√ºssen und in Unzahl von
       Regeln zu Fragmentieren.
 
-      Im Nachhinein w‰re vielleicht einer der folgenden Ans‰tze die
+      Im Nachhinein w√§re vielleicht einer der folgenden Ans√§tze die
       besser Wahl gewesen:
 
        - Interessanterweise ist die 'naive' Form der Untergrammatik
-         f¸r zusammengesetzte Zahlwˆrte wohl RL(1): Man kˆnnte alle
-         dazugehˆrigen Tokens in einen Puffer lesen, die Reihenfolge
+         f√ºr zusammengesetzte Zahlw√∂rte wohl RL(1): Man k√∂nnte alle
+         dazugeh√∂rigen Tokens in einen Puffer lesen, die Reihenfolge
          _umdrehen_ und durch einen LL(1) rekursiv absteigenden
          Unterparser analysieren lassen.
 
-       - Man kˆnnte die Tokens in einen Puffer lesen, nach dem
-         hˆchsten Skalenfaktor (million, tausend. hundert ...) suchen
+       - Man k√∂nnte die Tokens in einen Puffer lesen, nach dem
+         h√∂chsten Skalenfaktor (million, tausend. hundert ...) suchen
          und dann die Teile links und rechts vom Skalenfaktor durch
          rekursiven Aufruf der Funktion analysieren.
        
 
-      Stattdessen wurde aber im vorliegenden Fall die Grammatik f¸r
-      zusammengesetzten Zahlwˆrter in eine LL(2) Form umgeschrieben
-      und Infrastruktur zur Verf¸gung gestellt um nˆtigenfalls ein
-      einzelnes ¸berlesenes Token wieder in den Eingabestrom
-      zur¸ckzuschreiben (dies ist die Art wie der Look-Ahead 2 hier
+      Stattdessen wurde aber im vorliegenden Fall die Grammatik f√ºr
+      zusammengesetzten Zahlw√∂rter in eine LL(2) Form umgeschrieben
+      und Infrastruktur zur Verf√ºgung gestellt um n√∂tigenfalls ein
+      einzelnes √ºberlesenes Token wieder in den Eingabestrom
+      zur√ºckzuschreiben (dies ist die Art wie der Look-Ahead 2 hier
       realisiert wird).
       
-      In diesem Kompromiss wird kein unbeschr‰nkter Puffer zur
-      Zwischenspeicherung der Tokens benˆtigt, und die resultierende
-      Grammatik bleibt noch einigermassen verst‰ndlich.
+      In diesem Kompromiss wird kein unbeschr√§nkter Puffer zur
+      Zwischenspeicherung der Tokens ben√∂tigt, und die resultierende
+      Grammatik bleibt noch einigermassen verst√§ndlich.
 
       Well -- talk about a golden hammer :-).
 
@@ -93,11 +93,11 @@
    
    Die folgenden Prozeduren und Variablen dienen dem Parser zum
    Fehler-Recovery: Wird ein Fehler gefunden, wird mittels longjmp()
-   auf eine hˆhere Ebene der Aufrufhierarchie zur¸ckgekehrt (und zwar
-   auf die Prozedure, die eine vollst‰ndige Zeile parst). Es kann dann
+   auf eine h√∂here Ebene der Aufrufhierarchie zur√ºckgekehrt (und zwar
+   auf die Prozedure, die eine vollst√§ndige Zeile parst). Es kann dann
    der Rest der Phrase / Zeile ignoriert werden (panic mode recovery).
 
-   Kommunikation erfolgt hier ¸ber globale Variabeln,
+   Kommunikation erfolgt hier √ºber globale Variabeln,
    d.h. Implementation des Parser-Moduls ist nicht threadsafe.
 
 */
@@ -115,7 +115,7 @@ static jmp_buf  error_jmp_buf;
 static void     
 throw_error(char* error_message, size_t lexeme_start, size_t lexeme_end, int line){
 
-  /* Fehlerbedingung auslˆsen - longjmp() - mit Angabe des anstˆﬂigen
+  /* Fehlerbedingung ausl√∂sen - longjmp() - mit Angabe des anst√∂√üigen
      Teils der Eingabe (ein oder mehrere Token einer Zeile */
 
   errortext            = error_message;
@@ -145,18 +145,18 @@ parser_init(parser* p, lexer* l, FILE*  output_channel, FILE*  error_channel){
 }
 
 
-/* INFRASTRUKTUR f¸r rekursiven Parser 
+/* INFRASTRUKTUR f√ºr rekursiven Parser 
 
-   Um nicht zu lange Ausdr¸cke schreiben zu m¸ssen und nicht jedesmal
+   Um nicht zu lange Ausdr√ºcke schreiben zu m√ºssen und nicht jedesmal
    den Parserzustand an die einzelnen Prozeduren der Parser mitgeben
-   zu m¸ssen, werden Teile des Parserzustandes (Eingabequelle,
-   Ausgabekan‰le) vor Beginn der Evaluation in lokale Variablen
+   zu m√ºssen, werden Teile des Parserzustandes (Eingabequelle,
+   Ausgabekan√§le) vor Beginn der Evaluation in lokale Variablen
    gespeichert.
 
-   (Sicher keine so gute Idee, aber f¸r den Prototyp des Parsers
-   einfacher und verst‰ndlicher. G‰be es verschachtelte Prozeduren in
-   C oder rename-Direktiven (wie in Ada), w‰re dieser Zirkus nicht
-   nˆtig).
+   (Sicher keine so gute Idee, aber f√ºr den Prototyp des Parsers
+   einfacher und verst√§ndlicher. G√§be es verschachtelte Prozeduren in
+   C oder rename-Direktiven (wie in Ada), w√§re dieser Zirkus nicht
+   n√∂tig).
 
    Konsequenz: Modul 'parser' ist nicht threadsafe.
 
@@ -189,7 +189,7 @@ setup_parsing(parser* p){
 static void
 next_token(){
 
-  /* N‰chstes Token holen, Aktuelles Token merken */
+  /* N√§chstes Token holen, Aktuelles Token merken */
 
   last_tok = tok;
   tok      = lexer_next_token(lex);  
@@ -198,7 +198,7 @@ next_token(){
 static void
 token_rewind(){
 
-  /* Letztes Token zur¸ckschreiben */
+  /* Letztes Token zur√ºckschreiben */
   
   lexer_push_token(lex,last_tok);
   tok = lexer_current_token(lex);
@@ -208,8 +208,8 @@ token_rewind(){
 static void
 match_token(lexer_token_class c, char* message){
 
-  /* Pr¸fen ob aktuelles Token vom gegebenen Typ ist, sonst
-     Fehlerbehandlung auslˆsen */
+  /* Pr√ºfen ob aktuelles Token vom gegebenen Typ ist, sonst
+     Fehlerbehandlung ausl√∂sen */
 
   if (tok.class != c) {
     
@@ -220,8 +220,8 @@ match_token(lexer_token_class c, char* message){
 
 
 
-#define TOK_IS(x)  (tok.class == LEXER_TOKEN_CLASS_##x)     /* Abk¸rzungen   */
-#define MATCH(x,m) (match_token(LEXER_TOKEN_CLASS_##x,m))   /* (bˆse Tricks) */
+#define TOK_IS(x)  (tok.class == LEXER_TOKEN_CLASS_##x)     /* Abk√ºrzungen   */
+#define MATCH(x,m) (match_token(LEXER_TOKEN_CLASS_##x,m))   /* (b√∂se Tricks) */
 
 
 
@@ -229,13 +229,13 @@ void
 throw_error_current_lexeme(char* error_message){
 
   /* Fehlerbehandlung mit dem Lexeme des aktuellenToken tok als
-     markiertem Fehlerbereich auslˆsen */
+     markiertem Fehlerbereich ausl√∂sen */
   
   throw_error(error_message, tok.lexeme_start, tok.lexeme_end, tok.line);
 }
 
 
-/* INFRSTRUKTUR zur Ausgabe "schˆner" visueller Fehlermeldungen 
+/* INFRSTRUKTUR zur Ausgabe "sch√∂ner" visueller Fehlermeldungen 
  */
 
 
@@ -270,7 +270,7 @@ fprint_error(FILE* f){                    /* Aktuellen Fehler ausgeben
 }
 
 
-/* PARSER f¸r Untergrammatik der zusammengesetzten Zahlwˆrter  ----------
+/* PARSER f√ºr Untergrammatik der zusammengesetzten Zahlw√∂rter  ----------
 */
 
 static
@@ -281,7 +281,7 @@ int token_is_numeral(){
 
 
 number 
-parse_range_2_9(){             /* ==> Alle Zahlwˆrter von 'zwei' bis 'neun' */
+parse_range_2_9(){             /* ==> Alle Zahlw√∂rter von 'zwei' bis 'neun' */
 
   number n;
   
@@ -293,7 +293,7 @@ parse_range_2_9(){             /* ==> Alle Zahlwˆrter von 'zwei' bis 'neun' */
 
 
 number 
-parse_range_1_9(){             /* ==> Alle Zahlwˆrter von 'eins' bis 'neun' */
+parse_range_1_9(){             /* ==> Alle Zahlw√∂rter von 'eins' bis 'neun' */
 
   number n;
 
@@ -314,7 +314,7 @@ parse_range_20_90(){           /* ==> Alle Zehner von 'zwanzig' bis 'neunzig' */
 }
 
 
-number                         /* ==> Alle Zahlwˆrter von 'zwei' bis 'neunundneunzig' */
+number                         /* ==> Alle Zahlw√∂rter von 'zwei' bis 'neunundneunzig' */
 parse_range_2_99(){
 
   number n;
@@ -337,7 +337,7 @@ parse_range_2_99(){
 
 
 number 
-parse_range_1_99(){           /* ==> Alle Zahlwˆrter von 'eins' bis 'neunundneunzig' */
+parse_range_1_99(){           /* ==> Alle Zahlw√∂rter von 'eins' bis 'neunundneunzig' */
   
   if (TOK_IS(eins))   { return parse_range_1_9();   }
 
@@ -347,7 +347,7 @@ parse_range_1_99(){           /* ==> Alle Zahlwˆrter von 'eins' bis 'neunundneun
 
 
 number
-parse_opt_1_99(){             /* ==> '' oder alle Zahlwˆrter von 'eins' bis 'neunundneunzig' */
+parse_opt_1_99(){             /* ==> '' oder alle Zahlw√∂rter von 'eins' bis 'neunundneunzig' */
   
   if (!(token_is_numeral() && (tok.val < 100))) { return 0; };
   
@@ -356,7 +356,7 @@ parse_opt_1_99(){             /* ==> '' oder alle Zahlwˆrter von 'eins' bis 'neu
 
 
 number 
-parse_range_2_999(){          /* ==> Alle Zahlwˆrter von 'zwei' bis "999" */
+parse_range_2_999(){          /* ==> Alle Zahlw√∂rter von 'zwei' bis "999" */
 
   number n;
 
@@ -377,7 +377,7 @@ parse_range_2_999(){          /* ==> Alle Zahlwˆrter von 'zwei' bis "999" */
 
 
 number 
-parse_range_1_999(){          /* ==> Alle Zahlwˆrter von 'eins' bis "999" */
+parse_range_1_999(){          /* ==> Alle Zahlw√∂rter von 'eins' bis "999" */
 
   if (TOK_IS(eins)) { return parse_range_1_9();   }
   return parse_range_2_999();
@@ -385,7 +385,7 @@ parse_range_1_999(){          /* ==> Alle Zahlwˆrter von 'eins' bis "999" */
 
 
 number
-parse_opt_1_999(){            /* ==> '' oder alle Zahlwˆrter von 'eins' bis "999" */
+parse_opt_1_999(){            /* ==> '' oder alle Zahlw√∂rter von 'eins' bis "999" */
   
   if (!(token_is_numeral() && (tok.val<1000))) { return 0; };
   
@@ -395,7 +395,7 @@ parse_opt_1_999(){            /* ==> '' oder alle Zahlwˆrter von 'eins' bis "999
 
 
 number 
-parse_range_2_999999(){       /* ==> Alle Zahlwˆrter von 'zwei' bis "999999" */
+parse_range_2_999999(){       /* ==> Alle Zahlw√∂rter von 'zwei' bis "999999" */
 
   number n;
 
@@ -418,7 +418,7 @@ parse_range_2_999999(){       /* ==> Alle Zahlwˆrter von 'zwei' bis "999999" */
 
 
 number 
-parse_range_1_999999(){       /* ==> Alle Zahlwˆrter von 'eins' bis "999999" */
+parse_range_1_999999(){       /* ==> Alle Zahlw√∂rter von 'eins' bis "999999" */
 
   if (TOK_IS(eins))     { return parse_range_1_9();   }
 
@@ -428,7 +428,7 @@ parse_range_1_999999(){       /* ==> Alle Zahlwˆrter von 'eins' bis "999999" */
 
 
 number
-parse_opt_1_999999(){         /* ==> '' oder alle Zahlwˆrter von 'eins' bis "999999" */
+parse_opt_1_999999(){         /* ==> '' oder alle Zahlw√∂rter von 'eins' bis "999999" */
   
   if (!(token_is_numeral()&&(tok.val<1000000))) { return 0; };
   
@@ -438,7 +438,7 @@ parse_opt_1_999999(){         /* ==> '' oder alle Zahlwˆrter von 'eins' bis "999
 
 
 number 
-parse_range_1_999999999(){    /* ==> Alle Zahlwˆrter von 'eins' bis "999999999" */
+parse_range_1_999999999(){    /* ==> Alle Zahlw√∂rter von 'eins' bis "999999999" */
 
   number n;
 
@@ -456,7 +456,7 @@ parse_range_1_999999999(){    /* ==> Alle Zahlwˆrter von 'eins' bis "999999999" 
   if (TOK_IS(millionen))  { 
     
     if (n>999) {
-      throw_error("Mehr als 999 Millionen werden nicht unterst¸tzt (‹berlaufgefahr)",
+      throw_error("Mehr als 999 Millionen werden nicht unterst√ºtzt (√úberlaufgefahr)",
 		  lexeme_start, tok.lexeme_end, tok.line);
 
       /* Syntax wie 'einhundertausend millionen' wird verweigert */
@@ -482,7 +482,7 @@ parse_number(){
 
 
 
-/* PARSER f¸r Ausdr¸cke ----------------------------------------------------
+/* PARSER f√ºr Ausdr√ºcke ----------------------------------------------------
 
 
    Standard rekursiv absteigender Parser.
@@ -518,7 +518,7 @@ parse_factor(){    /*   <factor> ->   <number>
 
   next_token();
   n = parse_expression();
-  MATCH(PAR_CLOSE, "Schlieﬂende Klammer ')' erwartet");
+  MATCH(PAR_CLOSE, "Schlie√üende Klammer ')' erwartet");
   return n;
 }
 
@@ -540,7 +540,7 @@ parse_factor_list(){       /*  <factor-list> ->  <factor>
 
     if (TOK_IS(geteilt)) { 
       
-      next_token(); MATCH(durch,"Schl¸sselwort 'durch' erwartet");
+      next_token(); MATCH(durch,"Schl√ºsselwort 'durch' erwartet");
       n1 = n1 / parse_factor();  
       continue; 
     }
@@ -624,7 +624,7 @@ parse_line(parser* p){         /* parse genau eine Zeile, erzeuge
     
     if (TOK_IS(EOL)) {fprintf(out,"\n"); return ; }
     
-    n = parse_expression(p); 
+    n = parse_expression(); 
     fprintf(out,"%" NUMBER_FMT "\n",n);
   };
 }
