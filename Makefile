@@ -154,6 +154,7 @@ tidy:
 	find . -name "?" -maxdepth 1 -type f | xargs rm -f
 	rm -f foobar*
 	rm -f ?.*
+	rm -f *.d
 
 clean: tidy
 	rm -f $(PRODUCTS)
